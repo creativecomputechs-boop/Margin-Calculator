@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Margin Calculator App</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 800px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      height: fit-content;
+    }
+
+    .app-header {
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .app-header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      padding: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: var(--primary);
+    }
+
+    .row-total {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .actions-bar {
+      padding: 0 16px 16px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-add {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-add:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-delete {
+      background-color: #fee2e2;
+      color: var(--danger);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .btn-delete:hover {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-clear {
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    .btn-clear:hover {
+      background-color: #e2e8f0;
+    }
+
+    tfoot tr {
+      background-color: #f8fafc;
+    }
+
+    tfoot td {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      border-top: 2px solid var(--border);
+      border-bottom: none;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .right {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-card">
+  <div class="app-header">
+    <h1>Price & Margin Calculator</h1>
+  </div>
+
+  <div class="table-container">
+    <table id="calcTable">
+      <thead>
+        <tr>
+          <th style="width: 50px;" class="center">#</th>
+          <th>Item</th>
+          <th style="width: 120px;">Price</th>
+          <th style="width: 110px;">Margin (%)</th>
+          <th style="width: 120px;" class="right">Total</th>
+          <th style="width: 60px;" class="center"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Dynamic Rows -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" class="right">TOTAL</td>
+          <td id="totPrice">0.00</td>
+          <td id="totMargin">0.00</td>
+          <td id="totGrandTotal" class="right">0.00</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-add" onclick="addRow()">+ Add Item</button>
+    <button class="btn btn-clear" onclick="clearAll()">Clear All</button>
+  </div>
+</div>
+
+<script>
+  // Load saved state or default
+  let items = JSON.parse(localStorage.getItem('calculatorData')) || [
+    { name: '', price: 0, margin: 0 }
+  ];
+
+  function renderTable() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    items.forEach((item, index) => {
+      const price = parseFloat(item.price) || 0;
+      const margin = parseFloat(item.margin) || 0;
+      const marginCash = price * (margin / 100);
+      const total = price + marginCash;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="center" style="color: var(--text-muted); font-size: 0.85rem;">${index + 1}</td>
+        <td>
+          <input type="text" placeholder="Item Name" value="${item.name}" oninput="updateItem(${index}, 'name', this.value)">
+        </td>
+        <td>
+          <input type="number" min="0" step="any" value="${item.price || ''}" placeholder="0" oninput="updateItem(${index}, 'price', this.value)">
+        </td>
+        <td>
+          <input type="number" min="0" step="any" value="${item.margin || ''}" placeholder="0" oninput="updateItem(${index}, 'margin', this.value)">
+        </td>
+        <td class="row-total right">${total.toFixed(2)}</td>
+        <td class="center">
+          <button class="btn btn-delete" onclick="deleteRow(${index})">?</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    calculateTotals();
+    saveData();
+  }
+
+  function updateItem(index, field, value) {
+    items[index][field] = value;
+    renderTable();
+  }
+
+  function addRow() {
+    items.push({ name: '', price: 0, margin: 0 });
+    renderTable();
+  }
+
+  function deleteRow(index) {
+    items.splice(index, 1);
+    if (items.length === 0) {
+      items.push({ name: '', price: 0, margin: 0 });
+    }
+    renderTable();
+  }
+
+  function clearAll() {
+    items = [{ name: '', price: 0, margin: 0 }];
+    renderTable();
+  }
+
+  function calculateTotals() {
+    let totalPrice = 0;
+    let totalMargin = 0;
+    let grandTotal = 0;
+
+    items.forEach(item => {
+      const price = parseFloat(item.price) || 0;
+      const margin = parseFloat(item.margin) || 0;
+      const marginCash = price * (margin / 100);
+      
+      totalPrice += price;
+      totalMargin += margin;
+      grandTotal += (price + marginCash);
+    });
+
+    document.getElementById("totPrice").innerText = totalPrice.toFixed(2);
+    document.getElementById("totMargin").innerText = totalMargin.toFixed(2);
+    document.getElementById("totGrandTotal").innerText = grandTotal.toFixed(2);
+  }
+
+  function saveData() {
+    localStorage.setItem('calculatorData', JSON.stringify(items));
+  }
+
+  // Initialize on load
+  window.onload = renderTable;
+</script>
+
+</body>
+</html>
