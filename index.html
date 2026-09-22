@@ -222,18 +222,16 @@
         const discPrice = price - (price * (discPct / 100));
         row.querySelector('.disc-price').innerText = discPrice.toFixed(2);
 
-        // 2. Add Margin Amount (Flat Amount per unit) & calculate GST
-        const priceWithMargin = discPrice + marginAmt;
-        const gstAmount = priceWithMargin * (gstRate / 100);
-        const unitFinalPrice = priceWithMargin + gstAmount;
+        // 2. GST calculated ONLY on Base/Discounted Price
+        const gstAmountUnit = discPrice * (gstRate / 100);
+        row.querySelector('.gst-val').innerText = (gstAmountUnit * qty).toFixed(2);
 
-        row.querySelector('.gst-val').innerText = (gstAmount * qty).toFixed(2);
-
-        // 3. Row Total (Unit Final Price * Quantity)
+        // 3. Row Total = (Price + GST + Margin) * QTY
+        const unitFinalPrice = discPrice + gstAmountUnit + marginAmt;
         const rowTotal = unitFinalPrice * qty;
         row.querySelector('.row-total').innerText = rowTotal.toFixed(2);
 
-        // Accumulate Totals for rows where Price > 0
+        // Accumulate Totals for active rows
         if (price > 0) {
           sumPrice += price * qty;
           sumQty += qty;
