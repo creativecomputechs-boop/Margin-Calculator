@@ -154,7 +154,7 @@
           <td class="col-qty" id="totQty">0</td>
           <td class="col-disc">-</td>
           <td class="col-discprice" id="totDiscPrice">0.00</td>
-          <td class="col-gst">-</td>
+          <td class="col-gst" id="totGstMode">0.00</td>
           <td class="col-margin" id="totMargin">0</td>
           <td class="col-total" id="totFinal">0.00</td>
           <td class="col-del"></td>
@@ -208,6 +208,7 @@
       let sumPrice = 0;
       let sumQty = 0;
       let sumDiscPrice = 0;
+      let sumPricePlusGst = 0;
       let sumMargin = 0;
       let sumGrandTotal = 0;
 
@@ -222,13 +223,15 @@
         const discPrice = price - (price * (discPct / 100));
         row.querySelector('.disc-price').innerText = discPrice.toFixed(2);
 
-        // 2. GST calculated ONLY on Base/Discounted Price
+        // 2. GST calculated on Base Price
         const gstAmountUnit = discPrice * (gstRate / 100);
-        row.querySelector('.gst-val').innerText = (gstAmountUnit * qty).toFixed(2);
+        
+        // 3. PRICE + GST (Disc Price + GST Amount) * QTY
+        const pricePlusGstTotal = (discPrice + gstAmountUnit) * qty;
+        row.querySelector('.gst-val').innerText = pricePlusGstTotal.toFixed(2);
 
-        // 3. Row Total = (Price + GST + Margin) * QTY
-        const unitFinalPrice = discPrice + gstAmountUnit + marginAmt;
-        const rowTotal = unitFinalPrice * qty;
+        // 4. Row Total = PRICE+GST + (Margin * QTY)
+        const rowTotal = pricePlusGstTotal + (marginAmt * qty);
         row.querySelector('.row-total').innerText = rowTotal.toFixed(2);
 
         // Accumulate Totals for active rows
@@ -236,6 +239,7 @@
           sumPrice += price * qty;
           sumQty += qty;
           sumDiscPrice += discPrice * qty;
+          sumPricePlusGst += pricePlusGstTotal;
           sumMargin += marginAmt * qty;
           sumGrandTotal += rowTotal;
         }
@@ -245,6 +249,7 @@
       document.getElementById('totPrice').innerText = sumPrice.toFixed(0);
       document.getElementById('totQty').innerText = sumQty;
       document.getElementById('totDiscPrice').innerText = sumDiscPrice.toFixed(2);
+      document.getElementById('totGstMode').innerText = sumPricePlusGst.toFixed(2);
       document.getElementById('totMargin').innerText = sumMargin.toFixed(0);
       document.getElementById('totFinal').innerText = sumGrandTotal.toFixed(2);
     }
