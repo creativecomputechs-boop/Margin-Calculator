@@ -65,7 +65,7 @@
       vertical-align: middle;
     }
 
-    /* Column Specific Color Themes */
+    /* Column Color Themes */
     .col-num { width: 35px; background-color: #ffffff; font-weight: bold; }
     .col-price { background-color: #4285f4; color: white; }
     .col-qty { background-color: #2ecc71; color: white; }
@@ -155,7 +155,7 @@
           <td class="col-disc">-</td>
           <td class="col-discprice" id="totDiscPrice">0.00</td>
           <td class="col-gst">-</td>
-          <td class="col-margin">-</td>
+          <td class="col-margin" id="totMargin">0</td>
           <td class="col-total" id="totFinal">0.00</td>
           <td class="col-del"></td>
         </tr>
@@ -208,6 +208,7 @@
       let sumPrice = 0;
       let sumQty = 0;
       let sumDiscPrice = 0;
+      let sumMargin = 0;
       let sumGrandTotal = 0;
 
       rows.forEach(row => {
@@ -228,21 +229,25 @@
 
         row.querySelector('.gst-val').innerText = gstAmount.toFixed(2);
 
-        // 3. Row Total (Unit Price with GST & Margin * Quantity)
+        // 3. Row Total
         const rowTotal = unitFinalPrice * qty;
         row.querySelector('.row-total').innerText = rowTotal.toFixed(2);
 
-        // Accumulate Totals
-        sumPrice += price * qty;
-        sumQty += qty;
-        sumDiscPrice += discPrice * qty;
-        sumGrandTotal += rowTotal;
+        // Only count quantity & totals if Price > 0
+        if (price > 0) {
+          sumPrice += price * qty;
+          sumQty += qty;
+          sumDiscPrice += discPrice * qty;
+          sumMargin += marginPct;
+          sumGrandTotal += rowTotal;
+        }
       });
 
       // Update Bottom Footer Totals
       document.getElementById('totPrice').innerText = sumPrice.toFixed(0);
       document.getElementById('totQty').innerText = sumQty;
       document.getElementById('totDiscPrice').innerText = sumDiscPrice.toFixed(2);
+      document.getElementById('totMargin').innerText = sumMargin.toFixed(0);
       document.getElementById('totFinal').innerText = sumGrandTotal.toFixed(2);
     }
 
@@ -266,7 +271,8 @@
     function copyTableData() {
       const totFinal = document.getElementById('totFinal').innerText;
       const totQty = document.getElementById('totQty').innerText;
-      const text = `Total Items: ${totQty}\nGrand Total: ₹${totFinal}`;
+      const totMargin = document.getElementById('totMargin').innerText;
+      const text = `Total Items: ${totQty}\nTotal Margin: ${totMargin}%\nGrand Total: ₹${totFinal}`;
       navigator.clipboard.writeText(text).then(() => {
         alert("Summary Copied to Clipboard:\n" + text);
       });
