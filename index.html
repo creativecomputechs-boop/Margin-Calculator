@@ -187,10 +187,7 @@
           <td class="col-gst">
             <select class="gst-mode" onchange="calculate()">
               <option value="0">+0%</option>
-              <option value="5">+5%</option>
-              <option value="12">+12%</option>
               <option value="18" selected>+18%</option>
-              <option value="28">+28%</option>
             </select>
             <div class="gst-val" style="font-size: 0.75rem;">0.00</div>
           </td>
@@ -229,7 +226,7 @@
         const gstAmount = priceWithMargin * (gstRate / 100);
         const unitFinalPrice = priceWithMargin + gstAmount;
 
-        row.querySelector('.gst-val').innerText = (priceWithMargin * (gstRate / 100)).toFixed(2);
+        row.querySelector('.gst-val').innerText = gstAmount.toFixed(2);
 
         // 3. Row Total (Unit Price with GST & Margin * Quantity)
         const rowTotal = unitFinalPrice * qty;
